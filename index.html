@@ -1,0 +1,624 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#4F46E5">
+<title>Marcações da Equipe</title>
+<link rel="manifest" href="./manifest.json">
+<link rel="icon" href="./icon-192.png">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+  :root{
+    --bg:#0F172A;
+    --bg-elev:#161f38;
+    --card:#1c2745;
+    --card-border:#2b3760;
+    --primary:#6366F1;
+    --primary-dark:#4F46E5;
+    --success:#22C55E;
+    --warning:#F59E0B;
+    --danger:#EF4444;
+    --text:#F1F5F9;
+    --text-dim:#94A3B8;
+    --radius:16px;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+    background:radial-gradient(circle at top,#1a2547,var(--bg) 60%);
+    color:var(--text);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    -webkit-user-select:none;
+    user-select:none;
+  }
+  .screen{ flex:1; display:none; flex-direction:column; padding:20px; max-width:560px; margin:0 auto; width:100%; }
+  .screen.active{ display:flex; animation:fadeIn .25s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  h1{ font-size:1.5rem; margin:0 0 4px; }
+  .subtitle{ color:var(--text-dim); font-size:.9rem; margin-bottom:24px; }
+
+  .brand{ display:flex; flex-direction:column; align-items:center; margin:32px 0 40px; }
+  .brand-badge{
+    width:76px; height:76px; border-radius:22px;
+    background:linear-gradient(135deg,var(--primary),#8B5CF6);
+    display:flex; align-items:center; justify-content:center;
+    font-size:2rem; margin-bottom:14px;
+    box-shadow:0 10px 30px -8px rgba(99,102,241,.6);
+  }
+  .brand h1{ font-size:1.4rem; text-align:center; }
+  .brand .subtitle{ text-align:center; margin-bottom:0; }
+
+  .btn{
+    display:flex; align-items:center; justify-content:center; gap:10px;
+    width:100%; padding:18px; border-radius:var(--radius);
+    border:none; font-size:1.05rem; font-weight:600;
+    cursor:pointer; margin-bottom:14px; transition:transform .12s ease, opacity .12s ease;
+    color:var(--text);
+  }
+  .btn:active{ transform:scale(.97); }
+  .btn-primary{ background:linear-gradient(135deg,var(--primary),var(--primary-dark)); }
+  .btn-outline{ background:var(--card); border:1px solid var(--card-border); }
+  .btn-success{ background:linear-gradient(135deg,#22C55E,#16A34A); }
+  .btn-danger{ background:transparent; color:var(--danger); border:1px solid rgba(239,68,68,.35); }
+  .btn:disabled{ opacity:.35; cursor:not-allowed; }
+  .btn-sm{ padding:12px; font-size:.9rem; margin-bottom:0; }
+
+  .name-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:10px; }
+  .name-card{
+    background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius);
+    padding:22px 10px; text-align:center; cursor:pointer; font-weight:600; font-size:1.05rem;
+    transition:transform .12s ease, border-color .12s ease;
+  }
+  .name-card:active{ transform:scale(.96); border-color:var(--primary); }
+  .name-card .avatar{
+    width:48px; height:48px; border-radius:50%; margin:0 auto 10px;
+    background:linear-gradient(135deg,var(--primary),#8B5CF6);
+    display:flex; align-items:center; justify-content:center; font-size:1.2rem; font-weight:700;
+  }
+
+  .top-bar{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .top-bar .who{ display:flex; align-items:center; gap:10px; }
+  .top-bar .avatar-sm{
+    width:38px; height:38px; border-radius:50%;
+    background:linear-gradient(135deg,var(--primary),#8B5CF6);
+    display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.95rem;
+  }
+  .icon-btn{
+    width:40px; height:40px; border-radius:12px; background:var(--card); border:1px solid var(--card-border);
+    color:var(--text-dim); display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem;
+  }
+
+  .slots{ display:flex; flex-direction:column; gap:12px; margin:18px 0 24px; }
+  .slot{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:16px 18px;
+  }
+  .slot.done{ border-color:rgba(34,197,94,.5); background:rgba(34,197,94,.08); }
+  .slot .label{ font-weight:600; }
+  .slot .time{ color:var(--success); font-weight:700; font-variant-numeric:tabular-nums; }
+  .slot .pending{ color:var(--text-dim); font-size:.85rem; }
+  .slot .dot{ width:10px; height:10px; border-radius:50%; background:var(--card-border); margin-right:10px; }
+  .slot.done .dot{ background:var(--success); }
+
+  .progress-wrap{ margin:6px 0 22px; }
+  .progress-track{ height:10px; border-radius:6px; background:var(--card); overflow:hidden; border:1px solid var(--card-border); }
+  .progress-fill{ height:100%; background:linear-gradient(90deg,var(--primary),var(--success)); transition:width .3s ease; }
+  .progress-label{ display:flex; justify-content:space-between; font-size:.8rem; color:var(--text-dim); margin-top:6px; }
+
+  .card{ background:var(--card); border:1px solid var(--card-border); border-radius:var(--radius); padding:16px; margin-bottom:14px; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-size:.85rem; color:var(--text-dim); margin-bottom:6px; }
+  .field input{
+    width:100%; padding:14px; border-radius:12px; border:1px solid var(--card-border);
+    background:var(--bg-elev); color:var(--text); font-size:1rem;
+  }
+  .error-msg{ color:var(--danger); font-size:.85rem; margin:-6px 0 12px; min-height:1em; }
+  .success-msg{ color:var(--success); font-size:.85rem; margin:-6px 0 12px; min-height:1em; }
+
+  .tabs{ display:flex; gap:6px; background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:5px; margin-bottom:18px; }
+  .tab{ flex:1; text-align:center; padding:10px 6px; border-radius:10px; font-size:.82rem; font-weight:600; color:var(--text-dim); cursor:pointer; }
+  .tab.active{ background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; }
+  .tab-panel{ display:none; flex:1; overflow-y:auto; }
+  .tab-panel.active{ display:block; }
+
+  .rank-row{ display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
+  .rank-pos{ width:30px; height:30px; border-radius:50%; background:var(--bg-elev); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; flex-shrink:0; }
+  .rank-pos.gold{ background:#F59E0B; color:#1a1a1a; }
+  .rank-pos.silver{ background:#CBD5E1; color:#1a1a1a; }
+  .rank-pos.bronze{ background:#B45309; color:#fff; }
+  .rank-name{ flex:1; font-weight:600; }
+  .rank-count{ font-weight:700; color:var(--success); }
+  .rank-bar-track{ height:6px; background:var(--bg-elev); border-radius:4px; overflow:hidden; margin-top:6px; }
+  .rank-bar-fill{ height:100%; background:linear-gradient(90deg,var(--primary),var(--success)); }
+  .rank-info{ flex:1; }
+
+  .summary-day{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
+  .summary-day .name-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
+  .summary-day .name-row .name{ font-weight:700; }
+  .summary-day .name-row .total{ font-size:.8rem; color:var(--text-dim); }
+  .mini-slots{ display:flex; gap:8px; }
+  .mini-slot{ flex:1; text-align:center; padding:8px 4px; border-radius:8px; background:var(--bg-elev); font-size:.75rem; color:var(--text-dim); border:1px solid var(--card-border); }
+  .mini-slot.done{ color:var(--success); border-color:rgba(34,197,94,.4); font-weight:700; }
+
+  .history-item{ display:flex; justify-content:space-between; align-items:center; padding:12px 14px; background:var(--card); border:1px solid var(--card-border); border-radius:12px; margin-bottom:8px; font-size:.88rem; }
+  .history-item .hi-left{ display:flex; flex-direction:column; }
+  .history-item .hi-name{ font-weight:600; }
+  .history-item .hi-day{ color:var(--text-dim); font-size:.75rem; }
+  .history-item .hi-time{ color:var(--success); font-weight:700; font-variant-numeric:tabular-nums; }
+  .empty-state{ text-align:center; color:var(--text-dim); padding:30px 10px; font-size:.9rem; }
+
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(10px);
+    background:#111827; border:1px solid var(--card-border); color:var(--text);
+    padding:12px 20px; border-radius:12px; font-size:.9rem; opacity:0; pointer-events:none;
+    transition:opacity .25s ease, transform .25s ease; z-index:999; max-width:90%; text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,.4);
+  }
+  .toast.show{ opacity:1; transform:translateX(-50%) translateY(0); }
+
+  .footer-note{ text-align:center; color:var(--text-dim); font-size:.75rem; margin-top:auto; padding-top:20px; }
+
+  .install-banner{
+    display:none; align-items:center; gap:10px; background:var(--card); border:1px solid var(--card-border);
+    border-radius:14px; padding:12px 14px; margin-bottom:16px; font-size:.82rem; color:var(--text-dim);
+  }
+  .install-banner.show{ display:flex; }
+  .install-banner button{ margin-left:auto; padding:8px 14px; border-radius:10px; border:none; background:var(--primary); color:#fff; font-weight:600; font-size:.8rem; cursor:pointer; }
+
+  .link-btn{ background:none; border:none; color:var(--primary); font-size:.85rem; cursor:pointer; padding:8px; text-align:center; }
+</style>
+</head>
+<body>
+
+<!-- LOGIN -->
+<div class="screen active" id="screen-login">
+  <div class="brand">
+    <div class="brand-badge">📋</div>
+    <h1>Sessões da Equipe</h1>
+    <div class="subtitle">Selecione como deseja entrar</div>
+  </div>
+  <div id="install-banner" class="install-banner">
+    <span>📲 Instale este app na tela inicial</span>
+    <button id="btn-install">Instalar</button>
+  </div>
+  <button class="btn btn-primary" id="btn-go-vendedor">🙋 Sou Vendedor</button>
+  <button class="btn btn-outline" id="btn-go-master">🔐 Sou Master</button>
+  <div class="footer-note">Reinicia automaticamente todo dia às 08:00</div>
+</div>
+
+<!-- SELECT VENDEDOR -->
+<div class="screen" id="screen-select-vendedor">
+  <div class="top-bar">
+    <h1>Quem é você?</h1>
+    <div class="icon-btn" id="btn-back-1">✕</div>
+  </div>
+  <div class="name-grid" id="vendedor-grid"></div>
+</div>
+
+<!-- MASTER LOGIN -->
+<div class="screen" id="screen-master-login">
+  <div class="top-bar">
+    <h1>Login Master</h1>
+    <div class="icon-btn" id="btn-back-2">✕</div>
+  </div>
+  <div class="card">
+    <div class="field">
+      <label>Senha master</label>
+      <input type="password" id="input-master-pass" placeholder="Digite a senha" inputmode="numeric">
+    </div>
+    <div class="error-msg" id="master-login-error"></div>
+    <button class="btn btn-primary" id="btn-master-enter">Entrar</button>
+  </div>
+</div>
+
+<!-- VENDEDOR DASHBOARD -->
+<div class="screen" id="screen-vendedor">
+  <div class="top-bar">
+    <div class="who">
+      <div class="avatar-sm" id="vendedor-avatar">?</div>
+      <div>
+        <div style="font-weight:700;" id="vendedor-nome">-</div>
+        <div style="font-size:.75rem;color:var(--text-dim);" id="vendedor-data">-</div>
+      </div>
+    </div>
+    <div class="icon-btn" id="btn-logout-vendedor">⎋</div>
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-track"><div class="progress-fill" id="vendedor-progress-fill" style="width:0%"></div></div>
+    <div class="progress-label"><span>Sessões de hoje</span><span id="vendedor-progress-text">0/3</span></div>
+  </div>
+
+  <div class="slots" id="vendedor-slots"></div>
+
+  <button class="btn btn-success" id="btn-marcar">✓ Marcar agora</button>
+  <div class="empty-state" id="vendedor-full-msg" style="display:none;">🎉 Você já completou suas 3 marcações de hoje!</div>
+</div>
+
+<!-- MASTER DASHBOARD -->
+<div class="screen" id="screen-master">
+  <div class="top-bar">
+    <div class="who">
+      <div class="avatar-sm" style="background:linear-gradient(135deg,#F59E0B,#EF4444);">M</div>
+      <div>
+        <div style="font-weight:700;">Painel Master</div>
+        <div style="font-size:.75rem;color:var(--text-dim);" id="master-data">-</div>
+      </div>
+    </div>
+    <div class="icon-btn" id="btn-logout-master">⎋</div>
+  </div>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="hoje">Hoje</div>
+    <div class="tab" data-tab="ranking">Ranking</div>
+    <div class="tab" data-tab="historico">Histórico</div>
+    <div class="tab" data-tab="config">Config</div>
+  </div>
+
+  <div class="tab-panel active" id="panel-hoje"></div>
+  <div class="tab-panel" id="panel-ranking"></div>
+  <div class="tab-panel" id="panel-historico"></div>
+  <div class="tab-panel" id="panel-config">
+    <div class="card">
+      <div style="font-weight:700; margin-bottom:12px;">Alterar senha master</div>
+      <div class="field"><label>Senha atual</label><input type="password" id="cfg-pass-atual"></div>
+      <div class="field"><label>Nova senha</label><input type="password" id="cfg-pass-nova"></div>
+      <div class="error-msg" id="cfg-pass-error"></div>
+      <div class="success-msg" id="cfg-pass-success"></div>
+      <button class="btn btn-primary btn-sm" id="btn-salvar-senha">Salvar nova senha</button>
+    </div>
+    <div class="card">
+      <div style="font-weight:700; margin-bottom:6px;">Reiniciar marcações de hoje</div>
+      <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px;">Zera as marcações do dia atual manualmente. O histórico não é apagado.</div>
+      <button class="btn btn-danger btn-sm" id="btn-reset-hoje">Reiniciar marcações de hoje</button>
+    </div>
+    <div class="card">
+      <div style="font-weight:700; margin-bottom:6px;">Apagar todo o histórico</div>
+      <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px;">Remove permanentemente todos os registros de ranking e histórico.</div>
+      <button class="btn btn-danger btn-sm" id="btn-reset-historico">Apagar histórico completo</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ================= CONFIG ================= */
+const SELLERS = ['Orlando','Matheus','Rafaela','Andre'];
+const MAX_MARKS = 3;
+const RESET_HOUR = 8;
+const DEFAULT_MASTER_PASS = '1234';
+const COLORS = ['#6366F1','#22C55E','#F59E0B','#EC4899'];
+
+/* ================= STORAGE HELPERS ================= */
+function loadState(){
+  let raw = localStorage.getItem('marcacoes_state');
+  let state = raw ? JSON.parse(raw) : null;
+  const currentDay = getBusinessDay();
+  if(!state || state.day !== currentDay){
+    state = { day: currentDay, marks: {} };
+    SELLERS.forEach(s => state.marks[s] = [null,null,null]);
+    saveState(state);
+  }
+  // ensure all sellers present (in case list changes)
+  SELLERS.forEach(s => { if(!state.marks[s]) state.marks[s] = [null,null,null]; });
+  return state;
+}
+function saveState(state){ localStorage.setItem('marcacoes_state', JSON.stringify(state)); }
+
+function loadHistory(){
+  let raw = localStorage.getItem('marcacoes_history');
+  return raw ? JSON.parse(raw) : [];
+}
+function saveHistory(hist){ localStorage.setItem('marcacoes_history', JSON.stringify(hist)); }
+
+function getMasterPass(){ return localStorage.getItem('marcacoes_master_pass') || DEFAULT_MASTER_PASS; }
+function setMasterPass(p){ localStorage.setItem('marcacoes_master_pass', p); }
+
+/* business day: resets at RESET_HOUR (08:00). Before 8am counts as previous day's cycle */
+function getBusinessDay(d = new Date()){
+  const dt = new Date(d);
+  if(dt.getHours() < RESET_HOUR){ dt.setDate(dt.getDate() - 1); }
+  const y = dt.getFullYear(), m = String(dt.getMonth()+1).padStart(2,'0'), day = String(dt.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
+function formatDayLabel(dayStr){
+  const [y,m,d] = dayStr.split('-');
+  return `${d}/${m}/${y}`;
+}
+function formatTime(iso){
+  const d = new Date(iso);
+  return d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+}
+
+/* ================= APP STATE ================= */
+let state = loadState();
+let history = loadHistory();
+let currentVendedor = null;
+let masterLoggedIn = false;
+
+/* re-check day rollover periodically while app is open */
+setInterval(() => {
+  const cd = getBusinessDay();
+  if(state.day !== cd){
+    state = loadState();
+    if(currentVendedor) renderVendedor();
+    if(masterLoggedIn) renderMasterAll();
+  }
+}, 15000);
+document.addEventListener('visibilitychange', () => {
+  if(!document.hidden){
+    const cd = getBusinessDay();
+    if(state.day !== cd){ state = loadState(); if(currentVendedor) renderVendedor(); if(masterLoggedIn) renderMasterAll(); }
+  }
+});
+
+/* ================= NAVIGATION ================= */
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._tm);
+  toast._tm = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+/* ================= LOGIN SCREEN ================= */
+document.getElementById('btn-go-vendedor').onclick = () => {
+  const grid = document.getElementById('vendedor-grid');
+  grid.innerHTML = '';
+  SELLERS.forEach((name, i) => {
+    const card = document.createElement('div');
+    card.className = 'name-card';
+    card.innerHTML = `<div class="avatar" style="background:linear-gradient(135deg,${COLORS[i%COLORS.length]},#1c2745)">${name[0]}</div>${name}`;
+    card.onclick = () => enterVendedor(name);
+    grid.appendChild(card);
+  });
+  showScreen('screen-select-vendedor');
+};
+document.getElementById('btn-back-1').onclick = () => showScreen('screen-login');
+document.getElementById('btn-go-master').onclick = () => {
+  document.getElementById('input-master-pass').value = '';
+  document.getElementById('master-login-error').textContent = '';
+  showScreen('screen-master-login');
+};
+document.getElementById('btn-back-2').onclick = () => showScreen('screen-login');
+
+document.getElementById('btn-master-enter').onclick = () => {
+  const val = document.getElementById('input-master-pass').value;
+  if(val === getMasterPass()){
+    masterLoggedIn = true;
+    showScreen('screen-master');
+    renderMasterAll();
+  } else {
+    document.getElementById('master-login-error').textContent = 'Senha incorreta.';
+  }
+};
+document.getElementById('input-master-pass').addEventListener('keydown', e => {
+  if(e.key === 'Enter') document.getElementById('btn-master-enter').click();
+});
+
+/* ================= VENDEDOR ================= */
+function enterVendedor(name){
+  currentVendedor = name;
+  state = loadState();
+  document.getElementById('vendedor-nome').textContent = name;
+  document.getElementById('vendedor-avatar').textContent = name[0];
+  showScreen('screen-vendedor');
+  renderVendedor();
+}
+function renderVendedor(){
+  document.getElementById('vendedor-data').textContent = `Dia ${formatDayLabel(state.day)} · reinicia às 08:00`;
+  const marks = state.marks[currentVendedor] || [null,null,null];
+  const done = marks.filter(m => m).length;
+
+  const slotsDiv = document.getElementById('vendedor-slots');
+  slotsDiv.innerHTML = '';
+  for(let i=0; i<MAX_MARKS; i++){
+    const filled = marks[i];
+    const el = document.createElement('div');
+    el.className = 'slot' + (filled ? ' done' : '');
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;">
+        <span class="dot"></span>
+        <span class="label">Sessão ${i+1}</span>
+      </div>
+      ${filled ? `<span class="time">✓ ${formatTime(filled)}</span>` : `<span class="pending">pendente</span>`}
+    `;
+    slotsDiv.appendChild(el);
+  }
+
+  document.getElementById('vendedor-progress-fill').style.width = `${(done/MAX_MARKS)*100}%`;
+  document.getElementById('vendedor-progress-text').textContent = `${done}/${MAX_MARKS}`;
+
+  const btn = document.getElementById('btn-marcar');
+  const fullMsg = document.getElementById('vendedor-full-msg');
+  if(done >= MAX_MARKS){
+    btn.style.display = 'none';
+    fullMsg.style.display = 'block';
+  } else {
+    btn.style.display = 'flex';
+    fullMsg.style.display = 'none';
+  }
+}
+document.getElementById('btn-marcar').onclick = () => {
+  state = loadState(); // ensure fresh in case day rolled over
+  const marks = state.marks[currentVendedor];
+  const idx = marks.findIndex(m => !m);
+  if(idx === -1){ toast('Você já usou suas 3 marcações hoje.'); renderVendedor(); return; }
+  const nowIso = new Date().toISOString();
+  marks[idx] = nowIso;
+  saveState(state);
+  history.push({ day: state.day, vendedor: currentVendedor, quadrante: idx+1, horario: nowIso });
+  saveHistory(history);
+  toast(`✓ Marcação ${idx+1} registrada às ${formatTime(nowIso)}`);
+  renderVendedor();
+};
+document.getElementById('btn-logout-vendedor').onclick = () => {
+  currentVendedor = null;
+  showScreen('screen-login');
+};
+
+/* ================= MASTER ================= */
+document.getElementById('btn-logout-master').onclick = () => {
+  masterLoggedIn = false;
+  showScreen('screen-login');
+};
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+  };
+});
+
+function renderMasterAll(){
+  state = loadState();
+  history = loadHistory();
+  document.getElementById('master-data').textContent = `Dia ${formatDayLabel(state.day)} · reinicia às 08:00`;
+  renderMasterHoje();
+  renderMasterRanking();
+  renderMasterHistorico();
+}
+
+function renderMasterHoje(){
+  const panel = document.getElementById('panel-hoje');
+  panel.innerHTML = '';
+  SELLERS.forEach((name, i) => {
+    const marks = state.marks[name] || [null,null,null];
+    const done = marks.filter(m=>m).length;
+    const div = document.createElement('div');
+    div.className = 'summary-day';
+    div.innerHTML = `
+      <div class="name-row">
+        <span class="name">${name}</span>
+        <span class="total">${done}/${MAX_MARKS} hoje</span>
+      </div>
+      <div class="mini-slots">
+        ${marks.map((m,idx) => `<div class="mini-slot ${m?'done':''}">${m ? formatTime(m) : `Sessão${idx+1}`}</div>`).join('')}
+      </div>
+    `;
+    panel.appendChild(div);
+  });
+}
+
+function renderMasterRanking(){
+  const panel = document.getElementById('panel-ranking');
+  const counts = SELLERS.map(name => ({
+    name,
+    total: (state.marks[name]||[]).filter(m=>m).length
+  })).sort((a,b) => b.total - a.total);
+  const maxTotal = Math.max(1, ...counts.map(c=>c.total));
+
+  panel.innerHTML = `<div style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px;">Ranking de hoje (${formatDayLabel(state.day)})</div>`;
+  const medalClass = ['gold','silver','bronze'];
+  counts.forEach((c, i) => {
+    const row = document.createElement('div');
+    row.className = 'rank-row';
+    row.innerHTML = `
+      <div class="rank-pos ${medalClass[i]||''}">${i+1}</div>
+      <div class="rank-info">
+        <div style="display:flex;justify-content:space-between;">
+          <span class="rank-name">${c.name}</span>
+          <span class="rank-count">${c.total}/${MAX_MARKS}</span>
+        </div>
+        <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${(c.total/maxTotal)*100}%"></div></div>
+      </div>
+    `;
+    panel.appendChild(row);
+  });
+}
+
+function renderMasterHistorico(){
+  const panel = document.getElementById('panel-historico');
+  panel.innerHTML = '';
+  if(history.length === 0){
+    panel.innerHTML = '<div class="empty-state">Nenhuma marcação registrada ainda.</div>';
+    return;
+  }
+  const sorted = [...history].sort((a,b) => new Date(b.horario) - new Date(a.horario));
+  sorted.slice(0, 200).forEach(h => {
+    const item = document.createElement('div');
+    item.className = 'history-item';
+    item.innerHTML = `
+      <div class="hi-left">
+        <span class="hi-name">${h.vendedor} · Marcação ${h.quadrante}</span>
+        <span class="hi-day">${formatDayLabel(h.day)}</span>
+      </div>
+      <span class="hi-time">${formatTime(h.horario)}</span>
+    `;
+    panel.appendChild(item);
+  });
+}
+
+/* ---- config: change password ---- */
+document.getElementById('btn-salvar-senha').onclick = () => {
+  const atual = document.getElementById('cfg-pass-atual').value;
+  const nova = document.getElementById('cfg-pass-nova').value;
+  const errEl = document.getElementById('cfg-pass-error');
+  const okEl = document.getElementById('cfg-pass-success');
+  errEl.textContent = ''; okEl.textContent = '';
+  if(atual !== getMasterPass()){ errEl.textContent = 'Senha atual incorreta.'; return; }
+  if(!nova || nova.length < 3){ errEl.textContent = 'A nova senha deve ter ao menos 3 caracteres.'; return; }
+  setMasterPass(nova);
+  document.getElementById('cfg-pass-atual').value = '';
+  document.getElementById('cfg-pass-nova').value = '';
+  okEl.textContent = 'Senha atualizada com sucesso!';
+};
+
+/* ---- config: manual reset today ---- */
+document.getElementById('btn-reset-hoje').onclick = () => {
+  if(!confirm('Tem certeza que deseja reiniciar as marcações de hoje? Esta ação não pode ser desfeita.')) return;
+  const cd = getBusinessDay();
+  state = { day: cd, marks: {} };
+  SELLERS.forEach(s => state.marks[s] = [null,null,null]);
+  saveState(state);
+  renderMasterAll();
+  toast('Marcações de hoje reiniciadas.');
+};
+
+/* ---- config: wipe history ---- */
+document.getElementById('btn-reset-historico').onclick = () => {
+  if(!confirm('Isso apaga PERMANENTEMENTE todo o histórico e ranking. Deseja continuar?')) return;
+  history = [];
+  saveHistory(history);
+  renderMasterAll();
+  toast('Histórico apagado.');
+};
+
+/* ================= PWA: SERVICE WORKER + INSTALL PROMPT ================= */
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./sw.js').catch(()=>{});
+  });
+}
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  document.getElementById('install-banner').classList.add('show');
+});
+document.getElementById('btn-install').onclick = async () => {
+  if(!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  document.getElementById('install-banner').classList.remove('show');
+};
+window.addEventListener('appinstalled', () => {
+  document.getElementById('install-banner').classList.remove('show');
+});
+</script>
+</body>
+</html>
