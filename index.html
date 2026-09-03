@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -118,14 +118,36 @@
     width:100%; padding:14px; border-radius:12px; border:1px solid var(--card-border);
     background:var(--bg-elev); color:var(--text); font-size:1rem;
   }
+  .field-hint{ font-size:.75rem; color:var(--text-dim); margin-top:6px; }
+  .pw-wrap{ position:relative; }
+  .pw-wrap input{ padding-right:46px; }
+  .pw-toggle{
+    position:absolute; right:4px; top:50%; transform:translateY(-50%);
+    background:none; border:none; color:var(--text-dim); font-size:1.15rem;
+    cursor:pointer; padding:10px; line-height:1;
+  }
   .error-msg{ color:var(--danger); font-size:.85rem; margin:-6px 0 12px; min-height:1em; }
   .success-msg{ color:var(--success); font-size:.85rem; margin:-6px 0 12px; min-height:1em; }
+
+  .warn-banner{
+    display:flex; align-items:flex-start; gap:10px; background:rgba(245,158,11,.12);
+    border:1px solid rgba(245,158,11,.4); border-radius:14px; padding:12px 14px; margin-bottom:16px;
+    font-size:.82rem; color:#FCD34D;
+  }
+  .warn-banner button{
+    margin-left:auto; padding:8px 12px; border-radius:10px; border:none; background:var(--warning);
+    color:#1a1a1a; font-weight:700; font-size:.78rem; cursor:pointer; white-space:nowrap; flex-shrink:0;
+  }
 
   .tabs{ display:flex; gap:6px; background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:5px; margin-bottom:18px; }
   .tab{ flex:1; text-align:center; padding:10px 6px; border-radius:10px; font-size:.82rem; font-weight:600; color:var(--text-dim); cursor:pointer; }
   .tab.active{ background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:#fff; }
   .tab-panel{ display:none; flex:1; overflow-y:auto; }
   .tab-panel.active{ display:block; }
+
+  .subtabs{ display:flex; gap:6px; background:var(--bg-elev); border:1px solid var(--card-border); border-radius:12px; padding:4px; margin-bottom:14px; }
+  .subtab{ flex:1; text-align:center; padding:8px 6px; border-radius:8px; font-size:.78rem; font-weight:600; color:var(--text-dim); cursor:pointer; }
+  .subtab.active{ background:var(--primary); color:#fff; }
 
   .rank-row{ display:flex; align-items:center; gap:12px; background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
   .rank-pos{ width:30px; height:30px; border-radius:50%; background:var(--bg-elev); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:.85rem; flex-shrink:0; }
@@ -137,6 +159,7 @@
   .rank-bar-track{ height:6px; background:var(--bg-elev); border-radius:4px; overflow:hidden; margin-top:6px; }
   .rank-bar-fill{ height:100%; background:linear-gradient(90deg,var(--primary),var(--success)); }
   .rank-info{ flex:1; }
+  .rank-caption{ font-size:.8rem; color:var(--text-dim); margin-bottom:12px; }
 
   .summary-day{ background:var(--card); border:1px solid var(--card-border); border-radius:14px; padding:14px 16px; margin-bottom:10px; }
   .summary-day .name-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; }
@@ -180,15 +203,15 @@
 <div class="screen active" id="screen-login">
   <div class="brand">
     <div class="brand-badge">📋</div>
-    <h1>Sessões da Equipe</h1>
+    <h1>Sessões da Equipe de Maringá</h1>
     <div class="subtitle">Selecione como deseja entrar</div>
   </div>
   <div id="install-banner" class="install-banner">
     <span>📲 Instale este app na tela inicial</span>
     <button id="btn-install">Instalar</button>
   </div>
-  <button class="btn btn-primary" id="btn-go-vendedor">🙋 Sou Vendedor</button>
-  <button class="btn btn-outline" id="btn-go-master">🔐 Sou Master</button>
+  <button class="btn btn-primary" id="btn-go-vendedor">🙋 Sou Vendedor/Caixa</button>
+  <button class="btn btn-outline" id="btn-go-master">🔐 Sou Gerente/Vm</button>
   <div class="footer-note">Reinicia automaticamente todo dia às 08:00</div>
 </div>
 
@@ -210,7 +233,10 @@
   <div class="card">
     <div class="field">
       <label>Senha master</label>
-      <input type="password" id="input-master-pass" placeholder="Digite a senha" inputmode="numeric">
+      <div class="pw-wrap">
+        <input type="password" id="input-master-pass" placeholder="Digite a senha" autocomplete="current-password">
+        <button type="button" class="pw-toggle" id="toggle-master-pass" aria-label="Mostrar senha">👁</button>
+      </div>
     </div>
     <div class="error-msg" id="master-login-error"></div>
     <button class="btn btn-primary" id="btn-master-enter">Entrar</button>
@@ -227,7 +253,7 @@
         <div style="font-size:.75rem;color:var(--text-dim);" id="vendedor-data">-</div>
       </div>
     </div>
-    <div class="icon-btn" id="btn-logout-vendedor">⎋</div>
+    <div class="icon-btn" id="btn-logout-vendedor">X</div>
   </div>
 
   <div class="progress-wrap">
@@ -254,6 +280,11 @@
     <div class="icon-btn" id="btn-logout-master">⎋</div>
   </div>
 
+  <div class="warn-banner" id="default-pass-warning" style="display:none;">
+    <span>⚠️ Você ainda está usando a senha padrão de fábrica. Troque agora em Configurações para proteger o painel.</span>
+    <button id="btn-goto-config">Trocar</button>
+  </div>
+
   <div class="tabs">
     <div class="tab active" data-tab="hoje">Hoje</div>
     <div class="tab" data-tab="ranking">Ranking</div>
@@ -267,20 +298,45 @@
   <div class="tab-panel" id="panel-config">
     <div class="card">
       <div style="font-weight:700; margin-bottom:12px;">Alterar senha master</div>
-      <div class="field"><label>Senha atual</label><input type="password" id="cfg-pass-atual"></div>
-      <div class="field"><label>Nova senha</label><input type="password" id="cfg-pass-nova"></div>
+      <div class="field">
+        <label>Senha atual</label>
+        <div class="pw-wrap">
+          <input type="password" id="cfg-pass-atual" autocomplete="current-password">
+          <button type="button" class="pw-toggle" id="toggle-cfg-atual" aria-label="Mostrar senha">👁</button>
+        </div>
+      </div>
+      <div class="field">
+        <label>Nova senha</label>
+        <div class="pw-wrap">
+          <input type="password" id="cfg-pass-nova" autocomplete="new-password">
+          <button type="button" class="pw-toggle" id="toggle-cfg-nova" aria-label="Mostrar senha">👁</button>
+        </div>
+        <div class="field-hint">Mínimo 6 caracteres, com letras e números.</div>
+      </div>
+      <div class="field">
+        <label>Confirmar nova senha</label>
+        <div class="pw-wrap">
+          <input type="password" id="cfg-pass-confirma" autocomplete="new-password">
+          <button type="button" class="pw-toggle" id="toggle-cfg-confirma" aria-label="Mostrar senha">👁</button>
+        </div>
+      </div>
       <div class="error-msg" id="cfg-pass-error"></div>
       <div class="success-msg" id="cfg-pass-success"></div>
       <button class="btn btn-primary btn-sm" id="btn-salvar-senha">Salvar nova senha</button>
     </div>
     <div class="card">
-      <div style="font-weight:700; margin-bottom:6px;">Reiniciar marcações de hoje</div>
-      <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px;">Zera as marcações do dia atual manualmente. O histórico não é apagado.</div>
+      <div style="font-weight:700; margin-bottom:6px;">Reiniciar sessões de hoje</div>
+      <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px;">Zera as marcações do dia atual manualmente. O histórico e o ranking do mês não são apagados.</div>
       <button class="btn btn-danger btn-sm" id="btn-reset-hoje">Reiniciar marcações de hoje</button>
     </div>
     <div class="card">
+      <div style="font-weight:700; margin-bottom:6px;">Apagar meses anteriores</div>
+      <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px;">Remove do histórico apenas os registros de meses já encerrados. O mês atual é mantido.</div>
+      <button class="btn btn-danger btn-sm" id="btn-reset-meses-antigos">Apagar meses anteriores</button>
+    </div>
+    <div class="card">
       <div style="font-weight:700; margin-bottom:6px;">Apagar todo o histórico</div>
-      <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px;">Remove permanentemente todos os registros de ranking e histórico.</div>
+      <div style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px;">Remove permanentemente todos os registros de ranking e histórico, de todos os meses.</div>
       <button class="btn btn-danger btn-sm" id="btn-reset-historico">Apagar histórico completo</button>
     </div>
   </div>
@@ -290,11 +346,14 @@
 
 <script>
 /* ================= CONFIG ================= */
-const SELLERS = ['Lucas','Isaías','Adrian','Pedro'];
+const SELLERS = ['Adrian','Isaias','Pedro','Lucas'];
 const MAX_MARKS = 3;
 const RESET_HOUR = 8;
 const DEFAULT_MASTER_PASS = '1234';
 const COLORS = ['#6366F1','#22C55E','#F59E0B','#EC4899'];
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCKOUT_MS = 60 * 1000;          // 1 minuto de bloqueio após esgotar tentativas
+const MASTER_SESSION_TIMEOUT = 15 * 60 * 1000; // 15 minutos de inatividade faz logout automático
 
 /* ================= STORAGE HELPERS ================= */
 function loadState(){
@@ -306,7 +365,6 @@ function loadState(){
     SELLERS.forEach(s => state.marks[s] = [null,null,null]);
     saveState(state);
   }
-  // ensure all sellers present (in case list changes)
   SELLERS.forEach(s => { if(!state.marks[s]) state.marks[s] = [null,null,null]; });
   return state;
 }
@@ -318,23 +376,100 @@ function loadHistory(){
 }
 function saveHistory(hist){ localStorage.setItem('marcacoes_history', JSON.stringify(hist)); }
 
-function getMasterPass(){ return localStorage.getItem('marcacoes_master_pass') || DEFAULT_MASTER_PASS; }
-function setMasterPass(p){ localStorage.setItem('marcacoes_master_pass', p); }
-
-/* business day: resets at RESET_HOUR (08:00). Before 8am counts as previous day's cycle */
+/* ---- business day / month (cutoff at RESET_HOUR) ---- */
 function getBusinessDay(d = new Date()){
   const dt = new Date(d);
   if(dt.getHours() < RESET_HOUR){ dt.setDate(dt.getDate() - 1); }
   const y = dt.getFullYear(), m = String(dt.getMonth()+1).padStart(2,'0'), day = String(dt.getDate()).padStart(2,'0');
   return `${y}-${m}-${day}`;
 }
+function getBusinessMonth(d = new Date()){
+  const dt = new Date(d);
+  if(dt.getHours() < RESET_HOUR){ dt.setDate(dt.getDate() - 1); }
+  const y = dt.getFullYear(), m = String(dt.getMonth()+1).padStart(2,'0');
+  return `${y}-${m}`;
+}
 function formatDayLabel(dayStr){
   const [y,m,d] = dayStr.split('-');
   return `${d}/${m}/${y}`;
 }
+function formatMonthLabel(monthStr){
+  const [y,m] = monthStr.split('-');
+  const names = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  return `${names[parseInt(m,10)-1]} de ${y}`;
+}
 function formatTime(iso){
   const d = new Date(iso);
   return d.toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'});
+}
+
+/* ================= SEGURANÇA: HASH, SAL, TENTATIVAS, SESSÃO ================= */
+async function sha256Hex(text){
+  const enc = new TextEncoder().encode(text);
+  const buf = await crypto.subtle.digest('SHA-256', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+function getSalt(){
+  let salt = localStorage.getItem('marcacoes_salt');
+  if(!salt){
+    salt = (crypto.randomUUID ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2)));
+    localStorage.setItem('marcacoes_salt', salt);
+  }
+  return salt;
+}
+async function hashPassword(pass){
+  return await sha256Hex(getSalt() + '::' + pass);
+}
+/* Retorna o hash atualmente salvo, migrando senha antiga em texto puro (se existir) */
+async function getMasterPassHash(){
+  let stored = localStorage.getItem('marcacoes_master_hash');
+  if(!stored){
+    const legacyPlain = localStorage.getItem('marcacoes_master_pass');
+    const initial = legacyPlain || DEFAULT_MASTER_PASS;
+    stored = await hashPassword(initial);
+    localStorage.setItem('marcacoes_master_hash', stored);
+    if(legacyPlain) localStorage.removeItem('marcacoes_master_pass');
+  }
+  return stored;
+}
+async function setMasterPassHash(newPass){
+  const hash = await hashPassword(newPass);
+  localStorage.setItem('marcacoes_master_hash', hash);
+}
+async function isDefaultPassword(){
+  const stored = await getMasterPassHash();
+  const defaultHash = await hashPassword(DEFAULT_MASTER_PASS);
+  return stored === defaultHash;
+}
+
+function getLoginAttempts(){
+  const raw = localStorage.getItem('marcacoes_login_attempts');
+  return raw ? JSON.parse(raw) : { count: 0, lockUntil: 0 };
+}
+function saveLoginAttempts(obj){ localStorage.setItem('marcacoes_login_attempts', JSON.stringify(obj)); }
+
+let masterSessionTimer = null;
+function armMasterSessionTimer(){
+  clearTimeout(masterSessionTimer);
+  if(!masterLoggedIn) return;
+  masterSessionTimer = setTimeout(() => {
+    masterLoggedIn = false;
+    toast('Sessão encerrada por inatividade.');
+    showScreen('screen-login');
+  }, MASTER_SESSION_TIMEOUT);
+}
+['click','keydown','touchstart','scroll'].forEach(ev => {
+  document.addEventListener(ev, () => { if(masterLoggedIn) armMasterSessionTimer(); }, { passive:true });
+});
+
+function setupPasswordToggle(btnId, inputId){
+  const btn = document.getElementById(btnId);
+  const input = document.getElementById(inputId);
+  btn.onclick = () => {
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.textContent = show ? '🙈' : '👁';
+  };
 }
 
 /* ================= APP STATE ================= */
@@ -342,6 +477,8 @@ let state = loadState();
 let history = loadHistory();
 let currentVendedor = null;
 let masterLoggedIn = false;
+let rankingMode = 'mes';    // 'mes' | 'dia'
+let historicoMode = 'mes';  // 'mes' | 'tudo'
 
 /* re-check day rollover periodically while app is open */
 setInterval(() => {
@@ -369,7 +506,7 @@ function toast(msg){
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(toast._tm);
-  toast._tm = setTimeout(() => t.classList.remove('show'), 2200);
+  toast._tm = setTimeout(() => t.classList.remove('show'), 2400);
 }
 
 /* ================= LOGIN SCREEN ================= */
@@ -388,19 +525,47 @@ document.getElementById('btn-go-vendedor').onclick = () => {
 document.getElementById('btn-back-1').onclick = () => showScreen('screen-login');
 document.getElementById('btn-go-master').onclick = () => {
   document.getElementById('input-master-pass').value = '';
+  document.getElementById('input-master-pass').type = 'password';
+  document.getElementById('toggle-master-pass').textContent = '👁';
   document.getElementById('master-login-error').textContent = '';
   showScreen('screen-master-login');
 };
 document.getElementById('btn-back-2').onclick = () => showScreen('screen-login');
+setupPasswordToggle('toggle-master-pass', 'input-master-pass');
 
-document.getElementById('btn-master-enter').onclick = () => {
+document.getElementById('btn-master-enter').onclick = async () => {
+  const btn = document.getElementById('btn-master-enter');
+  const errEl = document.getElementById('master-login-error');
+  errEl.textContent = '';
+
+  const attempts = getLoginAttempts();
+  const now = Date.now();
+  if(attempts.lockUntil && attempts.lockUntil > now){
+    const secs = Math.ceil((attempts.lockUntil - now) / 1000);
+    errEl.textContent = `Muitas tentativas incorretas. Aguarde ${secs}s para tentar novamente.`;
+    return;
+  }
+
+  btn.disabled = true;
   const val = document.getElementById('input-master-pass').value;
-  if(val === getMasterPass()){
+  const [hash, stored] = await Promise.all([hashPassword(val), getMasterPassHash()]);
+  btn.disabled = false;
+
+  if(hash === stored){
+    saveLoginAttempts({ count: 0, lockUntil: 0 });
     masterLoggedIn = true;
+    armMasterSessionTimer();
     showScreen('screen-master');
     renderMasterAll();
   } else {
-    document.getElementById('master-login-error').textContent = 'Senha incorreta.';
+    const newCount = (attempts.count || 0) + 1;
+    if(newCount >= MAX_LOGIN_ATTEMPTS){
+      saveLoginAttempts({ count: 0, lockUntil: now + LOCKOUT_MS });
+      errEl.textContent = `Muitas tentativas incorretas. Acesso bloqueado por ${LOCKOUT_MS/1000}s.`;
+    } else {
+      saveLoginAttempts({ count: newCount, lockUntil: 0 });
+      errEl.textContent = `Senha incorreta. ${MAX_LOGIN_ATTEMPTS - newCount} tentativa(s) restante(s).`;
+    }
   }
 };
 document.getElementById('input-master-pass').addEventListener('keydown', e => {
@@ -451,7 +616,7 @@ function renderVendedor(){
   }
 }
 document.getElementById('btn-marcar').onclick = () => {
-  state = loadState(); // ensure fresh in case day rolled over
+  state = loadState();
   const marks = state.marks[currentVendedor];
   const idx = marks.findIndex(m => !m);
   if(idx === -1){ toast('Você já usou suas 3 marcações hoje.'); renderVendedor(); return; }
@@ -471,6 +636,7 @@ document.getElementById('btn-logout-vendedor').onclick = () => {
 /* ================= MASTER ================= */
 document.getElementById('btn-logout-master').onclick = () => {
   masterLoggedIn = false;
+  clearTimeout(masterSessionTimer);
   showScreen('screen-login');
 };
 
@@ -482,20 +648,25 @@ document.querySelectorAll('.tab').forEach(tab => {
     document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
   };
 });
+document.getElementById('btn-goto-config').onclick = () => {
+  document.querySelector('.tab[data-tab="config"]').click();
+};
 
-function renderMasterAll(){
+async function renderMasterAll(){
   state = loadState();
   history = loadHistory();
   document.getElementById('master-data').textContent = `Dia ${formatDayLabel(state.day)} · reinicia às 08:00`;
   renderMasterHoje();
   renderMasterRanking();
   renderMasterHistorico();
+  const warning = document.getElementById('default-pass-warning');
+  warning.style.display = (await isDefaultPassword()) ? 'flex' : 'none';
 }
 
 function renderMasterHoje(){
   const panel = document.getElementById('panel-hoje');
   panel.innerHTML = '';
-  SELLERS.forEach((name, i) => {
+  SELLERS.forEach((name) => {
     const marks = state.marks[name] || [null,null,null];
     const done = marks.filter(m=>m).length;
     const div = document.createElement('div');
@@ -515,13 +686,31 @@ function renderMasterHoje(){
 
 function renderMasterRanking(){
   const panel = document.getElementById('panel-ranking');
-  const counts = SELLERS.map(name => ({
-    name,
-    total: (state.marks[name]||[]).filter(m=>m).length
-  })).sort((a,b) => b.total - a.total);
+  panel.innerHTML = `
+    <div class="subtabs">
+      <div class="subtab ${rankingMode==='mes'?'active':''}" id="rank-toggle-mes">Este mês</div>
+      <div class="subtab ${rankingMode==='dia'?'active':''}" id="rank-toggle-dia">Hoje</div>
+    </div>
+  `;
+
+  let counts, caption;
+  if(rankingMode === 'dia'){
+    counts = SELLERS.map(name => ({ name, total: (state.marks[name]||[]).filter(m=>m).length }));
+    caption = `Ranking de hoje (${formatDayLabel(state.day)})`;
+  } else {
+    const month = getBusinessMonth();
+    const monthHistory = history.filter(h => h.day.slice(0,7) === month);
+    counts = SELLERS.map(name => ({ name, total: monthHistory.filter(h => h.vendedor === name).length }));
+    caption = `Ranking acumulado de ${formatMonthLabel(month)}`;
+  }
+  counts.sort((a,b) => b.total - a.total);
   const maxTotal = Math.max(1, ...counts.map(c=>c.total));
 
-  panel.innerHTML = `<div style="font-size:.8rem;color:var(--text-dim);margin-bottom:12px;">Ranking de hoje (${formatDayLabel(state.day)})</div>`;
+  const captionEl = document.createElement('div');
+  captionEl.className = 'rank-caption';
+  captionEl.textContent = caption;
+  panel.appendChild(captionEl);
+
   const medalClass = ['gold','silver','bronze'];
   counts.forEach((c, i) => {
     const row = document.createElement('div');
@@ -531,50 +720,85 @@ function renderMasterRanking(){
       <div class="rank-info">
         <div style="display:flex;justify-content:space-between;">
           <span class="rank-name">${c.name}</span>
-          <span class="rank-count">${c.total}/${MAX_MARKS}</span>
+          <span class="rank-count">${c.total}${rankingMode==='dia' ? '/'+MAX_MARKS : ''}</span>
         </div>
         <div class="rank-bar-track"><div class="rank-bar-fill" style="width:${(c.total/maxTotal)*100}%"></div></div>
       </div>
     `;
     panel.appendChild(row);
   });
+
+  document.getElementById('rank-toggle-mes').onclick = () => { rankingMode = 'mes'; renderMasterRanking(); };
+  document.getElementById('rank-toggle-dia').onclick = () => { rankingMode = 'dia'; renderMasterRanking(); };
 }
 
 function renderMasterHistorico(){
   const panel = document.getElementById('panel-historico');
-  panel.innerHTML = '';
-  if(history.length === 0){
-    panel.innerHTML = '<div class="empty-state">Nenhuma marcação registrada ainda.</div>';
-    return;
+  panel.innerHTML = `
+    <div class="subtabs">
+      <div class="subtab ${historicoMode==='mes'?'active':''}" id="hist-toggle-mes">Este mês</div>
+      <div class="subtab ${historicoMode==='tudo'?'active':''}" id="hist-toggle-tudo">Tudo</div>
+    </div>
+  `;
+
+  let list = history;
+  if(historicoMode === 'mes'){
+    const month = getBusinessMonth();
+    list = history.filter(h => h.day.slice(0,7) === month);
   }
-  const sorted = [...history].sort((a,b) => new Date(b.horario) - new Date(a.horario));
-  sorted.slice(0, 200).forEach(h => {
-    const item = document.createElement('div');
-    item.className = 'history-item';
-    item.innerHTML = `
-      <div class="hi-left">
-        <span class="hi-name">${h.vendedor} · Marcação ${h.quadrante}</span>
-        <span class="hi-day">${formatDayLabel(h.day)}</span>
-      </div>
-      <span class="hi-time">${formatTime(h.horario)}</span>
-    `;
-    panel.appendChild(item);
-  });
+
+  if(list.length === 0){
+    const empty = document.createElement('div');
+    empty.className = 'empty-state';
+    empty.textContent = 'Nenhuma marcação registrada neste período.';
+    panel.appendChild(empty);
+  } else {
+    const sorted = [...list].sort((a,b) => new Date(b.horario) - new Date(a.horario));
+    sorted.slice(0, 500).forEach(h => {
+      const item = document.createElement('div');
+      item.className = 'history-item';
+      item.innerHTML = `
+        <div class="hi-left">
+          <span class="hi-name">${h.vendedor} · Marcação ${h.quadrante}</span>
+          <span class="hi-day">${formatDayLabel(h.day)}</span>
+        </div>
+        <span class="hi-time">${formatTime(h.horario)}</span>
+      `;
+      panel.appendChild(item);
+    });
+  }
+
+  document.getElementById('hist-toggle-mes').onclick = () => { historicoMode = 'mes'; renderMasterHistorico(); };
+  document.getElementById('hist-toggle-tudo').onclick = () => { historicoMode = 'tudo'; renderMasterHistorico(); };
 }
 
 /* ---- config: change password ---- */
-document.getElementById('btn-salvar-senha').onclick = () => {
+['toggle-cfg-atual','toggle-cfg-nova','toggle-cfg-confirma'].forEach((btnId, i) => {
+  const inputs = ['cfg-pass-atual','cfg-pass-nova','cfg-pass-confirma'];
+  setupPasswordToggle(btnId, inputs[i]);
+});
+
+document.getElementById('btn-salvar-senha').onclick = async () => {
   const atual = document.getElementById('cfg-pass-atual').value;
   const nova = document.getElementById('cfg-pass-nova').value;
+  const confirma = document.getElementById('cfg-pass-confirma').value;
   const errEl = document.getElementById('cfg-pass-error');
   const okEl = document.getElementById('cfg-pass-success');
   errEl.textContent = ''; okEl.textContent = '';
-  if(atual !== getMasterPass()){ errEl.textContent = 'Senha atual incorreta.'; return; }
-  if(!nova || nova.length < 3){ errEl.textContent = 'A nova senha deve ter ao menos 3 caracteres.'; return; }
-  setMasterPass(nova);
+
+  const [atualHash, stored] = await Promise.all([hashPassword(atual), getMasterPassHash()]);
+  if(atualHash !== stored){ errEl.textContent = 'Senha atual incorreta.'; return; }
+  if(nova.length < 6){ errEl.textContent = 'A nova senha deve ter ao menos 6 caracteres.'; return; }
+  if(!/[a-zA-Z]/.test(nova) || !/[0-9]/.test(nova)){ errEl.textContent = 'Use letras e números para uma senha mais forte.'; return; }
+  if(nova === atual){ errEl.textContent = 'A nova senha deve ser diferente da atual.'; return; }
+  if(nova !== confirma){ errEl.textContent = 'A confirmação não coincide com a nova senha.'; return; }
+
+  await setMasterPassHash(nova);
   document.getElementById('cfg-pass-atual').value = '';
   document.getElementById('cfg-pass-nova').value = '';
+  document.getElementById('cfg-pass-confirma').value = '';
   okEl.textContent = 'Senha atualizada com sucesso!';
+  document.getElementById('default-pass-warning').style.display = 'none';
 };
 
 /* ---- config: manual reset today ---- */
@@ -588,9 +812,19 @@ document.getElementById('btn-reset-hoje').onclick = () => {
   toast('Marcações de hoje reiniciadas.');
 };
 
-/* ---- config: wipe history ---- */
+/* ---- config: wipe previous months only ---- */
+document.getElementById('btn-reset-meses-antigos').onclick = () => {
+  const month = getBusinessMonth();
+  if(!confirm(`Isso apaga o histórico de todos os meses anteriores a ${formatMonthLabel(month)}. O mês atual é mantido. Deseja continuar?`)) return;
+  history = history.filter(h => h.day.slice(0,7) === month);
+  saveHistory(history);
+  renderMasterAll();
+  toast('Meses anteriores apagados.');
+};
+
+/* ---- config: wipe all history ---- */
 document.getElementById('btn-reset-historico').onclick = () => {
-  if(!confirm('Isso apaga PERMANENTEMENTE todo o histórico e ranking. Deseja continuar?')) return;
+  if(!confirm('Isso apaga PERMANENTEMENTE todo o histórico e ranking, de todos os meses. Deseja continuar?')) return;
   history = [];
   saveHistory(history);
   renderMasterAll();
